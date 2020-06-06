@@ -28,14 +28,15 @@ public class MyGlSurfaceView extends GLSurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        renderer.setXY(event);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-
+                requestRender();
                 break;
             case MotionEvent.ACTION_MOVE:
-                float x = event.getX();
-                float y = event.getY();
-                renderer.setXY(x, y);
+                //                float x = event.getX();
+                //                float y = event.getY();
+                //                renderer.setXY(x, y);
                 requestRender();
                 //                float dx = x - perX;
                 //                float dy = y - perY;
@@ -56,6 +57,10 @@ public class MyGlSurfaceView extends GLSurfaceView {
                 //                perY = y;
 
                 break;
+            case MotionEvent.ACTION_UP:
+                requestRender();
+                break;
+            default:
         }
         return true;
     }

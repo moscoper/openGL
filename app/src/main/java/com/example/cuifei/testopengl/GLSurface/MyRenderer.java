@@ -5,9 +5,11 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.SystemClock;
+import android.view.MotionEvent;
 
 import com.example.cuifei.testopengl.Shape.Lines;
 import com.example.cuifei.testopengl.Shape.Triangle;
+import com.example.cuifei.testopengl.bean.LinePath;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL;
@@ -25,10 +27,55 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private float x, y;
     private float cx, cy;
 
-    public void setXY(float x, float y) {
-        this.x = x;
-        this.y = y;
-        converGL();
+    LinePath linePath;
+
+    public void setXY(MotionEvent event) {
+        //        this.x = x;
+        //        this.y = y;
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                linePath = new LinePath();
+                x = event.getX();
+                y = event.getY();
+                converGL();
+                linePath.points.add(cx);
+                linePath.points.add(cy);
+                linePath.points.add(0.f);
+                linePath.points.add(cx);
+                linePath.points.add(cy);
+                linePath.points.add((cy + cx) / 2.f);
+                linePath.points.add(0.f);
+                lines.pathArrayList.add(linePath);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                x = event.getX();
+                y = event.getY();
+                converGL();
+                linePath.points.add(cx);
+                linePath.points.add(cy);
+                linePath.points.add(0.f);
+                linePath.points.add(cx);
+                linePath.points.add(cy);
+                linePath.points.add((cy + cx) / 2.f);
+                linePath.points.add(0.f);
+                break;
+            case MotionEvent.ACTION_UP:
+                x = event.getX();
+                y = event.getY();
+                converGL();
+                linePath.points.add(cx);
+                linePath.points.add(cy);
+                linePath.points.add(0.f);
+                linePath.points.add(cx);
+                linePath.points.add(cy);
+                linePath.points.add((cy + cx) / 2.f);
+                linePath.points.add(0.f);
+
+                break;
+            default:
+        }
+
+
     }
 
     public MyRenderer(Context context) {
