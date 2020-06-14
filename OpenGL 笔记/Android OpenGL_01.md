@@ -32,10 +32,9 @@
           GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
       
       }
- }
-  
+   }
   ```
-- 在 ``` MySurfaceView ``` 中使用 ``` MyRender  ```
+- 在 ` MySurfaceView ` 中使用 ` MyRender`
   
   ```
   public class MySurfaceView extends GLSurfaceView {
@@ -57,7 +56,7 @@
         setRenderer(myRender);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
       }
-}
+    }
   ```
     - setRenderMode 
      - `RENDERMODE_CONTINUOUSLY 1` 反复调用渲染器渲染场景
