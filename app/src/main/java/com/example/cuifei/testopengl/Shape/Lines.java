@@ -1,6 +1,8 @@
 package com.example.cuifei.testopengl.Shape;
 
 import android.opengl.GLES20;
+import android.opengl.GLES30;
+import android.util.Log;
 
 import com.example.cuifei.testopengl.GLSurface.MyRenderer;
 import com.example.cuifei.testopengl.bean.LinePath;
@@ -21,9 +23,10 @@ public class Lines {
                     " vColor = color;" +
                     "}";
 
+    //                    "uniform vec4 vColor;" +
     private final String fragmentShaderCode =
             "precision mediump float;" +
-                    "varying vec4 vColor;"+
+                    "varying vec4 vColor;" +
                     "void main() {" +
                     "  gl_FragColor = vColor;" +
                     "}";
@@ -38,6 +41,7 @@ public class Lines {
     ArrayList<Float> arrayList = new ArrayList<>();
     public ArrayList<LinePath> pathArrayList = new ArrayList<>();
     IntBuffer VBO;
+    IntBuffer VAO;
     private int program;
     private int colorHandler;
 
@@ -53,54 +57,104 @@ public class Lines {
         GLES20.glAttachShader(program, vertexShader);
         GLES20.glAttachShader(program, fragmentShader);
         GLES20.glLinkProgram(program);
+
+        VAO = IntBuffer.allocate(200);
+        GLES30.glGenVertexArrays(200, VAO);
+        VBO = IntBuffer.allocate(200);
+        GLES20.glGenBuffers(200, VBO);
     }
 
 
     public void converFloat(LinePath linePath) {
         linePoints = new float[linePath.points.size()];
         for (int i = 0; i < linePath.points.size(); i++) {
-            linePoints[i] = linePath.points.get(i);
+            if (i < linePath.points.size() && i < linePoints.length) {
+                linePoints[i] = linePath.points.get(i);
+            }
+
         }
     }
 
-    public void freshData(LinePath linePath) {
+    public void freshData(LinePath linePath, int i) {
         //        arrayList.add(x);
         //        arrayList.add(y);
         //        arrayList.add(0.0f);
         converFloat(linePath);
-        VBO = IntBuffer.allocate(linePoints.length * 4);
-        VBO.clear();
+
+
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(linePoints.length * 4);
         byteBuffer.order(ByteOrder.nativeOrder());
         vertexBuffer = byteBuffer.asFloatBuffer();
-        vertexBuffer.clear();
         vertexBuffer.put(linePoints);
         vertexBuffer.position(0);
 
-        GLES20.glGenBuffers(1, VBO);
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, VBO.get(0));
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, VBO.get(i));
         GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, linePoints.length * 4, vertexBuffer, GLES20.GL_STATIC_DRAW);
 
+        GLES20.glUseProgram(program);
+        GLES20.glLineWidth(20.f);
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glEnableVertexAttribArray(0);
+        GLES20.glEnableVertexAttribArray(1);
+        GLES20.glVertexAttribPointer(0, 3, GLES20.GL_FLOAT, false, 7 * 4, 0);
+        GLES20.glVertexAttribPointer(1, 4, GLES20.GL_FLOAT, false, 7 * 4, 3 * 4);
     }
 
 
     public void draw(float x, float y) {
-        for (int i = 0; i < pathArrayList.size(); i++) {
-            freshData(pathArrayList.get(i));
 
-            GLES20.glUseProgram(program);
-            GLES20.glLineWidth(20.f);
-            GLES20.glEnable(GLES20.GL_BLEND);
-            GLES20.glEnableVertexAttribArray(0);
-            GLES20.glEnableVertexAttribArray(1);
-            GLES20.glVertexAttribPointer(0, 3, GLES20.GL_FLOAT, false, 7 * 4, 0);
-            GLES20.glVertexAttribPointer(1, 4, GLES20.GL_FLOAT, false, 7 * 4, 3*4);
+        Log.d("draw", "==" + pathArrayList.size());
+
+        if (pathArrayList.size() == 1) {
+            GLES30.glBindVertexArray(VAO.get(0));
+            freshData(pathArrayList.get(pathArrayList.size() - 1), 0);
 //            colorHandler = GLES20.glGetUniformLocation(program, "vColor");
 //            GLES20.glUniform4fv(colorHandler, 1, color, 0);
-            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, linePoints.length / 7);
-            GLES20.glDeleteBuffers(1, VBO);
-            GLES20.glDisableVertexAttribArray(0);
+            GLES30.glBindVertexArray(VAO.get(0));
+            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, pathArrayList.get(0).points.size() / 7);
+//            GLES20.glDisableVertexAttribArray(0);
+//            GLES20.glDisableVertexAttribArray(1);
+        } else if (pathArrayList.size() > 1) {
+            for (int i = 0; i < pathArrayList.size(); i++) {
+                if (i == pathArrayList.size() - 1) {
+//                    GLES30.glBindVertexArray(VAO.get(i));
+                    GLES30.glBindVertexArray(VAO.get(i));
+                    freshData(pathArrayList.get(pathArrayList.size() - 1), i);
+                    GLES30.glBindVertexArray(VAO.get(i));
+                    GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, pathArrayList.get(i).points.size() / 7);
+//                    GLES20.glDisableVertexAttribArray(i);
+//                    GLES20.glDisableVertexAttribArray(1);
+                } else {
+                    Log.d("draw", "==VAO");
+                    GLES30.glBindVertexArray(VAO.get(i));
+                    GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, pathArrayList.get(i).points.size() / 7);
+//                    GLES20.glDisableVertexAttribArray(i);
+//                    GLES20.glDisableVertexAttribArray(1);
+                }
+            }
         }
+
+//        for (int i = 0; i < pathArrayList.size(); i++) {
+//            if (i > 1) {
+//                GLES30.glBindVertexArray(VAO.get(0));
+//                GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, linePoints.length / 7);
+//                freshData(pathArrayList.get(pathArrayList.size() - 1));
+//
+//
+////            colorHandler = GLES20.glGetUniformLocation(program, "vColor");
+////            GLES20.glUniform4fv(colorHandler, 1, color, 0);
+//                GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, linePoints.length / 7);
+//                GLES20.glDisableVertexAttribArray(0);
+//            } else if (i == 0) {
+//
+//
+////            colorHandler = GLES20.glGetUniformLocation(program, "vColor");
+////            GLES20.glUniform4fv(colorHandler, 1, color, 0);
+//                GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, linePoints.length / 7);
+//                GLES20.glDisableVertexAttribArray(0);
+//            }
+//
+//        }
 
     }
 }

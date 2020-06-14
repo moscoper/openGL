@@ -67,7 +67,7 @@ public class Triangle {
     private int positionHandler;
     private int colorHandler;
     private int mMVPMatrixHandle;
-    IntBuffer VBO = IntBuffer.allocate(triangleCoords.length * 4);
+    IntBuffer VBO = IntBuffer.allocate(1);
     //    IntBuffer textue = IntBuffer.allocate(4 * 4);
     int[] textue = new int[1];
     private ShortBuffer drawListBuffer;

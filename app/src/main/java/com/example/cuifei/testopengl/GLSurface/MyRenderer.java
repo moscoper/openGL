@@ -41,10 +41,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 linePath.points.add(cx);
                 linePath.points.add(cy);
                 linePath.points.add(0.f);
-                linePath.points.add(cx);
-                linePath.points.add(cy);
-                linePath.points.add((cy + cx) / 2.f);
-                linePath.points.add(0.f);
+                linePath.points.add(Math.abs(cx) / (Math.abs(cx) + Math.abs(cy)));
+                linePath.points.add(Math.abs(cy) / (Math.abs(cx) + Math.abs(cy)));
+                linePath.points.add((Math.abs(cx) + Math.abs(cy)) / 2.f);
+                linePath.points.add(1.f);
                 lines.pathArrayList.add(linePath);
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -54,10 +54,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 linePath.points.add(cx);
                 linePath.points.add(cy);
                 linePath.points.add(0.f);
-                linePath.points.add(cx);
-                linePath.points.add(cy);
-                linePath.points.add((cy + cx) / 2.f);
-                linePath.points.add(0.f);
+                linePath.points.add(Math.abs(cx) / (Math.abs(cx) + Math.abs(cy)));
+                linePath.points.add(Math.abs(cy) / (Math.abs(cx) + Math.abs(cy)));
+                linePath.points.add((Math.abs(cx) + Math.abs(cy)) / 2.f);
+                linePath.points.add(1.f);
                 break;
             case MotionEvent.ACTION_UP:
                 x = event.getX();
@@ -66,10 +66,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 linePath.points.add(cx);
                 linePath.points.add(cy);
                 linePath.points.add(0.f);
-                linePath.points.add(cx);
-                linePath.points.add(cy);
-                linePath.points.add((cy + cx) / 2.f);
-                linePath.points.add(0.f);
+                linePath.points.add(Math.abs(cx) / (Math.abs(cx) + Math.abs(cy)));
+                linePath.points.add(Math.abs(cy) / (Math.abs(cx) + Math.abs(cy)));
+                linePath.points.add((Math.abs(cx) + Math.abs(cy)) / 2.f);
+                linePath.points.add(1.f);
+                linePath = null;
 
                 break;
             default:
@@ -96,8 +97,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glClearColor(0.f, 0.f, 0.f, 0.f);
-        //        triangle = new Triangle(mContext);
-        lines = new Lines();
+        triangle = new Triangle(mContext);
+//        lines = new Lines();
     }
 
     @Override
@@ -105,8 +106,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         GLES20.glViewport(0, 0, width, height);
         this.w = width;
         this.h = height;
-        //        float ratio = width / (float) height;
-        //        Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
+        float ratio = width / (float) height;
+        Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
     }
 
     public void converGL() {
@@ -121,13 +122,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         //        float angle = 0.09f * ((int)time);
         //        Matrix.setRotateM(mRotationMatrix, 0, angle, 0, 0, -1);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        //        Matrix.setLookAtM(mViewMatrix, 0, 0, 0,
-        //                -3, 0, 0, 0, 0, 1, 0);
+        Matrix.setLookAtM(mViewMatrix, 0, 0, 0,
+                -3, 0, 0, 0, 0, 1, 0);
         //        Matrix.multiplyMM(mMvpMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
         //        Matrix.multiplyMM(scratch, 0, mMvpMatrix, 0, mRotationMatrix, 0);
-        //        triangle.draw(scratch);
+                triangle.draw(scratch);
 
-        lines.draw(cx, cy);
+//        lines.draw(cx, cy);
 
     }
 
